@@ -6,7 +6,7 @@
 /*   By: tozaki <tozaki@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 20:54:12 by tozaki            #+#    #+#             */
-/*   Updated: 2025/11/28 21:21:04 by tozaki           ###   ########.fr       */
+/*   Updated: 2025/11/29 13:32:45 by tozaki           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,76 +14,53 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include "libft/libft.h"
+#include "server.h"
 
+volatile t_server	g_server;
 
-typedef struct s_server_state
+void	signal_handler(int signo, siginfo_t *info, void *context)
 {
-	int		bit;
-	int		client_pid;
-	
-}
+	(void)context;
 
-volatile int	bit;
-volatile int	c_pid;
-char			c;
-int				cnt;
-
-void	sigusr1_handler(int signo, siginfo_t *info, void *content)
-{
-	c_pid = info->si_pid;
-	ft_putnbr_fd(c_pid, 1);
 	if (signo == SIGUSR1)
-		bit = 1;
-}
-
-void	sigusr2_handler(int signo, siginfo_t *info, void *content)
-{
-	c_pid = info->si_pid;
-	ft_putnbr_fd(c_pid, 1);
-	if (signo == SIGUSR2)
-		bit = 0;
-}
-
-void	recieve_char()
-{
-	c |= bit << cnt;
-	cnt ++;
-	if (cnt == 7)
+		g_server.bit = 1;
+	else if (signo == SIGUSR2)
+		g_server.bit = 0;
+	g_server.c |= (g_server.bit << g_server.cnt);
+	g_server.cnt++;
+	if (g_server.cnt == 8)
 	{
-		ft_putchar_fd(c, 1);
-		c = '\0';
-		cnt = 0;
+		if (g_server.c == '\0')
+			ft_putchar_fd('\n', 1);
+		else
+			ft_putchar_fd(g_server.c, 1);
+		g_server.c = 0;
+		g_server.cnt = 0;
 	}
-	ft_putstr_fd("b\n", 1);
-	kill(c_pid, SIGUSR1);
+	kill(info->si_pid, SIGUSR1);
 }
 
 int	main(void)
 {
-	struct sigaction	act1;
-	struct sigaction	act2;
+	struct sigaction	act;
 	int					pid;
 
-	ft_bzero(&act1, sizeof(struct sigaction));
-	act1.sa_sigaction = sigusr1_handler;
-	sigemptyset(&act1.sa_mask);
-	sigaction(SIGUSR1, &act1, NULL);
-	ft_bzero(&act2, sizeof(struct sigaction));
-	act2.sa_sigaction = sigusr2_handler;
-	sigemptyset(&act2.sa_mask);
-	sigaction(SIGUSR2, &act2, NULL);
-
-	cnt = 0;
-	c = '\0';
+	ft_bzero(&act, sizeof(struct sigaction));
+	act.sa_sigaction = signal_handler;
+	act.sa_flags = SA_SIGINFO;
+	sigemptyset(&act.sa_mask);
+	sigaddset(&act.sa_mask, SIGUSR1); 
+	sigaddset(&act.sa_mask, SIGUSR2);
+	sigaction(SIGUSR1, &act, NULL);
+	sigaction(SIGUSR2, &act, NULL);
+	g_server.cnt = 0;
+	g_server.c = 0;
+	g_server.bit = 0;
 	pid = getpid();
+	ft_putstr_fd("Server PID: ", 1);
 	ft_putnbr_fd(pid, 1);
 	ft_putchar_fd('\n', 1);
-	pause();
 	while (1)
-	{
-		ft_putstr_fd("a\n", 1);
-		recieve_char();
 		pause();
-	}
 	return (0);
 }

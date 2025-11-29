@@ -1,35 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signal_training.c                                  :+:      :+:    :+:   */
+/*   server.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tozaki <tozaki@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/25 20:41:09 by tozaki            #+#    #+#             */
-/*   Updated: 2025/11/27 11:16:43 by tozaki           ###   ########.fr       */
+/*   Created: 2025/11/29 13:32:55 by tozaki            #+#    #+#             */
+/*   Updated: 2025/11/29 13:33:27 by tozaki           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <signal.h>
-#include <stdio.h>
-#include <unistd.h>
+#ifndef SERVER_H
+# define SERVER_H
 
-static void	sig_smile(int signo)
-{
-	printf(":)\n");
-}
+typedef struct s_server {
+	int		bit;
+	char	c;
+	int		cnt;
+	pid_t	client_pid;
+}	t_server;
 
-static void	sig_sad(int signo)
-{
-	printf(":<\n");
-}
-
-int	main(void)
-{
-	if (signal(SIGINT, sig_smile) == SIG_ERR)
-		printf("error\n");
-	if (signal(SIGSEGV, sig_sad) == SIG_ERR)
-		printf("error\n");
-	while (1)
-		pause();
-}
+#endif
