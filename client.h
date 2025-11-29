@@ -6,7 +6,7 @@
 /*   By: tozaki <tozaki@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 16:33:43 by tozaki            #+#    #+#             */
-/*   Updated: 2025/11/29 13:56:47 by tozaki           ###   ########.fr       */
+/*   Updated: 2025/11/29 15:44:19 by tozaki           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,10 @@
 
 typedef struct s_client_status
 {
-	int	ack_received;
-	int	char_cnt;
-	int	bit_cnt;
+	int		ack_received;
+	int		char_cnt;
+	int		bit_cnt;
+	int		s_pid;
+	char	*str;
 }		t_client_status;
-
 #endif
